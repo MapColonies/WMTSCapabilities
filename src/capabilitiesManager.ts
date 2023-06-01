@@ -1,4 +1,5 @@
-const L = require('leaflet');
+import L from 'leaflet';
+import { WMTSOptions, WMTS } from './WMTSOptions';
 
 const SUCCESS_STATUS_CODE = 200;
 
@@ -53,7 +54,7 @@ export function getLayer(capabilities: any) {
 
   const tileUrls = capabilities.Contents.TileMatrixSetLink[0].TileResourceURL.map((resource: any) => resource.Template);
 
-  const wmtsLayer = L.tileLayer.wmts(tileUrls, {
+  const wmtsLayer = new WMTS(tileUrls, {
     layer: 'your-layer-name',
     format: tileFormat,
     matrixSet: matrixSet.Identifier,

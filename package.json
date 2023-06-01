@@ -60,5 +60,9 @@
     "ts-node": "^9.1.1",
     "typedoc": "^0.20.36",
     "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "xml-js": "^1.6.11"
   }
 }

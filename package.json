@@ -59,11 +59,12 @@
     "standard-version": "^9.3.0",
     "ts-jest": "^26.4.4",
     "ts-node": "^9.1.1",
-    "typedoc": "^0.20.36",
+    "typedoc": "^0.24.7",
     "typescript": "^4.2.4"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
+    "leaflet-tilelayer-wmts": "^1.0.0",
     "xml-js": "^1.6.11"
   }
 }

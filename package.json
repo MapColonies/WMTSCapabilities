@@ -2,7 +2,7 @@
   "name": "@map-colonies/ts-npm-package-boilerplate",
   "version": "1.0.2",
   "description": "This is template for map colonies typescript packages",
-  "main": "./dist/index.js",
+  "main": "./src/index.js",
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
@@ -16,7 +16,7 @@
     "test": "npm run test:unit && npm run test:integration",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json",
-    "start": "npm run build && cd dist && node ./index.js",
+    "start": "node ./src/index.js",
     "clean": "rimraf dist",
     "prepack": "npm run build"
   },
@@ -63,8 +63,6 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "leaflet": "^1.9.4",
-    "leaflet-tilelayer-wmts": "^1.0.0",
-    "xml-js": "^1.6.11"
+    "leaflet": "^1.9.3"
   }
 }

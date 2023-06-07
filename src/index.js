@@ -45,7 +45,9 @@ export async function getWMTSCapabilities(url, token) {
 
   try {
     const version = '1.0.0';
-    const reqXmlUrl = token ? `${url}/wmts/${version}/WMTSCapabilities.xml?token=${token}` : `${url}/wmts/${version}/WMTSCapabilities.xml`;
+    const reqXmlUrl = token
+      ? `${url}/wmts/${version}/wmts-ll-layer-by-capabilities.xml?token=${token}`
+      : `${url}/wmts/${version}/wmts-ll-layer-by-capabilities.xml`;
     const response = await fetch(reqXmlUrl);
 
     if (response.status === SUCCESS_STATUS_CODE) {

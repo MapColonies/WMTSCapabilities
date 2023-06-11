@@ -40,12 +40,25 @@ function replaceTileUrlPlaceholders(url, tileMatrixSet, token) {
   return token ? replacedUrl + `?token=${token}` : replacedUrl;
 }
 
-export async function getWMTSCapabilities(url, token) {
+function getCapabilitiesUrl(url, queryParams) {
+  const token = queryParams.get('token');
+  let reqUrl;
+  if (String(url).includes('WMTSCapabilities.xml')) {
+    reqUrl = token ? url + `?token=${token}` : url;
+  } else {
+    if (String(url).includes('REQUEST=GetCapabilities')) {
+      reqUrl = token ? url + `&token=${token}` : url;
+    } else {
+      const version = '1.0.0';
+      reqUrl = token ? `${url}/wmts/${version}/WMTSCapabilities.xml?token=${token}` : `${url}/wmts/${version}/WMTSCapabilities.xml`;
+    }
+  }
+}
+export async function getWMTSCapabilities(url, queryParams) {
   const SUCCESS_STATUS_CODE = 200;
 
   try {
-    const version = '1.0.0';
-    const reqXmlUrl = token ? `${url}/wmts/${version}/WMTSCapabilities.xml?token=${token}` : `${url}/wmts/${version}/WMTSCapabilities.xml`;
+    const reqXmlUrl = getCapabilitiesUrl(url, queryParams);
     const response = await fetch(reqXmlUrl);
 
     if (response.status === SUCCESS_STATUS_CODE) {

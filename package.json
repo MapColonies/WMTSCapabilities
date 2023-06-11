@@ -1,7 +1,7 @@
 {
   "name": "@map-colonies/wmts-ll-layer-by-capabilities",
   "version": "1.0.2",
-  "description": "This is template for map colonies typescript packages",
+  "description": "This is an NPM package that allows creating leaflet WMTS layers by capabilities",
   "main": "./src/index.js",
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",

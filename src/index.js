@@ -1,4 +1,5 @@
-export function getLayerByCapabilities(capabilities, identifier, token) {
+export function getLayerByCapabilities(capabilities, identifier, queryParams) {
+  const token = queryParams.get('token');
   const allIdentifiers = capabilities.querySelectorAll('Identifier');
   const selectedIdentifier = Array.from(allIdentifiers).find((currentIdentifier) => currentIdentifier.textContent === identifier);
 
@@ -37,29 +38,32 @@ function replaceTileUrlPlaceholders(url, tileMatrixSet, token) {
     .replace('{TileCol}', '{x}')
     .replace('{TileRow}', '{y}');
 
-  return token ? replacedUrl + `?token=${token}` : replacedUrl;
+  return token ? addToken(replacedUrl, token) : replacedUrl;
 }
 
 function getCapabilitiesUrl(url, queryParams) {
   const token = queryParams.get('token');
   let reqUrl;
-  if (String(url).includes('WMTSCapabilities.xml')) {
-    reqUrl = token ? url + `?token=${token}` : url;
+
+  if (String(url).includes('WMTSCapabilities.xml') || String(url).includes('REQUEST=GetCapabilities')) {
+    reqUrl = token ? addToken(url, token) : url;
   } else {
-    if (String(url).includes('REQUEST=GetCapabilities')) {
-      reqUrl = token ? url + `&token=${token}` : url;
-    } else {
-      const version = '1.0.0';
-      reqUrl = token ? `${url}/wmts/${version}/WMTSCapabilities.xml?token=${token}` : `${url}/wmts/${version}/WMTSCapabilities.xml`;
-    }
+    const version = '1.0.0';
+    reqUrl = token ? addToken(`${url}/wmts/${version}/WMTSCapabilities.xml`, token) : `${url}/wmts/${version}/WMTSCapabilities.xml`;
   }
+  return reqUrl;
 }
-export async function getWMTSCapabilities(url, queryParams) {
+
+function addToken(url, token) {
+  return String(url).includes('?') ? url + `&token=${token}` : `?token=${token}`;
+}
+
+export async function getWMTSCapabilities(url, queryParams, headerParams) {
   const SUCCESS_STATUS_CODE = 200;
 
   try {
     const reqXmlUrl = getCapabilitiesUrl(url, queryParams);
-    const response = await fetch(reqXmlUrl);
+    const response = await fetch(reqXmlUrl, { headers: headerParams });
 
     if (response.status === SUCCESS_STATUS_CODE) {
       const capabilitiesXml = await response.text();
@@ -76,6 +80,6 @@ export async function getWMTSCapabilities(url, queryParams) {
   }
 }
 
-export async function getLayer(url, identifier, token) {
-  return getLayerByCapabilities(await getWMTSCapabilities(url, token), identifier, token);
+export async function getLayer(url, identifier, queryParams, headersParams) {
+  return getLayerByCapabilities(await getWMTSCapabilities(url, queryParams, headersParams), identifier, queryParams);
 }

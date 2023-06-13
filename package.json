@@ -1,5 +1,5 @@
 {
-  "name": "@map-colonies/wmts-ll-layer-by-capabilities",
+  "name": "@map-colonies/WMTSLayer-leaflet",
   "version": "1.0.2",
   "description": "This is an NPM package that allows creating leaflet WMTS layers by capabilities",
   "main": "./src/index.js",
@@ -22,12 +22,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MapColonies/wmts-ll-layer-by-capabilities.git"
+    "url": "git+https://github.com/MapColonies/WMTSLayer-leaflet.git"
   },
   "author": "MapColonies",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MapColonies/wmts-ll-layer-by-capabilities/issues"
+    "url": "https://github.com/MapColonies/WMTSLayer-leaflet/issues"
   },
   "husky": {
     "hooks": {
@@ -38,7 +38,7 @@
   "files": [
     "dist/**/*"
   ],
-  "homepage": "https://github.com/MapColonies/wmts-ll-layer-by-capabilities#readme",
+  "homepage": "https://github.com/MapColonies/WMTSLayer-leaflet#readme",
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",

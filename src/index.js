@@ -1,13 +1,10 @@
 export function getLayerByCapabilities(capabilities, identifier, queryParams) {
   const token = queryParams.token;
-  const content = capabilities.children.find((x) => x.tagName == 'Contents').children;
-  console.log(capabilities);
-  const allIdentifiers = capabilities.querySelectorAll('Identifier');
-  const selectedIdentifier = Array.from(allIdentifiers).find((currentIdentifier) => currentIdentifier.textContent === identifier);
+  const allLayers = capabilities.Contents.Layer;
+  const chosenLayer = Array.from(allLayers).find((layer) => layer.Identifier.textContent === identifier);
 
-  if (selectedIdentifier) {
-    const fittingLayer = selectedIdentifier.parentNode;
-    const { tileUrlTemplate, tileMatrixSet, title, style, format } = extractLayerProperties(fittingLayer);
+  if (chosenLayer) {
+    const { tileUrlTemplate, tileMatrixSet, title, style, format } = extractLayerProperties(chosenLayer);
 
     const validUrl = replaceTileUrlPlaceholders(tileUrlTemplate, tileMatrixSet, token);
 
@@ -24,19 +21,29 @@ export function getLayerByCapabilities(capabilities, identifier, queryParams) {
   }
 }
 
+function extractTileUrlTemplate(parsedCapabilities, selectedLayer) {
+  let tileUrlTemplate;
+
+  if (parsedCapabilities.OperationsMetadata) {
+    tileUrlTemplate = parsedCapabilities.OperationsMetadata.Get.attributes.href;
+  } else {
+    selectedLayer.ResourceURL.attributes.template;
+  }
+}
+
 function extractLayerProperties(selectedLayer) {
-  const title = selectedLayer.querySelector('Title').textContent;
-  let tileUrlTemplate = selectedLayer.querySelector('ResourceURL');
-  if (tileUrlTemplate) {
-    tileUrlTemplate = tileUrlTemplate.attributes.template.textContent;
+  const title = selectedLayer.Title.textContent;
+  let tileUrlTemplate;
+  if (selectedLayer.ResourceURL.attributes.template) {
+    tileUrlTemplate = selectedLayer.ResourceURL.attributes.template;
   } else {
     //create kvp url template
     tileUrlTemplate =
       'https://mapproxy-raster-dev-route-raster-dev.apps.j1lk3njp.eastus.aroapp.io/api/raster/v1/service?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYXBDb2xvbmllc0RldiIsImlhdCI6MTUxNjIzOTAyMiwiZCI6WyJyYXN0ZXIiLCJyYXN0ZXJXbXMiLCJyYXN0ZXJFeHBvcnQiLCJkZW0iLCJ2ZWN0b3IiLCIzZCJdfQ.GvTQ_yLjnioxxFrNgGQiuarhJxLpe8AhTTtrWE3LHoUED48CFKBEOfKqOyEWSDVZjx1jHkDvZAL1iyEvi5FHNys7UBRXCiJvVlG-muJZ6ycS9PGKauzL-eggXqTqGsXh4FBkqvHUEElXEnu7ARsMCm5eIC66U2i_eHFU3PLcOc67qJvS1IQjAI2oj9Pd5mGaI_HlDaf3B4PFOb0AHdY-r_MDGwck3asm1G_InVzsvCXt36vImyn1Z4HYaN4YiDfaMLBF0-GGrlLE84PObzGGtt66EIuQ4OneEZSzoQNusBt5-SFs0EQXsfsDc_RMRTz3DZseqkNIKiXEsEBBPjMr7w&LAYER=bluemarble-Orthophoto&FORMAT=image/png&CRS=EPSG:4326&TRANSPARENT=TRUEC&SERVICE=WMTS&VERSION=1.1.1&REQUEST=GetTile&STYLE&tilematrixset=newGrids&tilerow=3&tilecol=4&tilematrix=3';
   }
-  const style = selectedLayer.querySelector('Format').textContent;
-  const tileMatrixSet = selectedLayer.querySelector('TileMatrixSet').textContent;
-  const format = selectedLayer.querySelector('Style').children[0].textContent;
+  const format = selectedLayer.Format.textContent;
+  const tileMatrixSet = selectedLayer.TileMatrixSetLink.TileMatrixSet.textContent;
+  const style = selectedLayer.Style.Identifier.textContent;
   return { tileUrlTemplate, tileMatrixSet, title, style, format };
 }
 
@@ -68,6 +75,9 @@ function addToken(url, token) {
 }
 
 function domToJson(dom) {
+  if (dom.nodeType === Node.TEXT_NODE) {
+    return dom.nodeValue;
+  }
   if (dom.nodeType === Node.ELEMENT_NODE) {
     const obj = {};
 
@@ -78,7 +88,9 @@ function domToJson(dom) {
         const attr = dom.attributes[i];
         const attrValue = attr.value.trim();
         if (attrValue !== '') {
-          obj.attributes[attr.name] = attrValue;
+          //remove preName of tag (':' can't be read as a propery)
+          const attributeName = attr.name.includes(':') ? attr.name.substring(attr.name.indexOf(':') + 1) : attr.name;
+          obj.attributes[attributeName] = attrValue;
         }
       }
 
@@ -90,7 +102,8 @@ function domToJson(dom) {
     let childCount = 0;
     for (let child = dom.firstChild; child; child = child.nextSibling) {
       if (child.nodeType === Node.ELEMENT_NODE) {
-        const childTag = child.tagName;
+        //remove preName of tag (':' can't be read as a propery)
+        const childTag = child.tagName.includes(':') ? child.tagName.substring(child.tagName.indexOf(':') + 1) : child.tagName;
         if (!obj[childTag]) {
           obj[childTag] = null;
         }
@@ -107,7 +120,12 @@ function domToJson(dom) {
       } else if (child.nodeType === Node.TEXT_NODE) {
         const textContent = child.nodeValue.trim();
         if (textContent !== '') {
-          obj[dom.tagName] = textContent;
+          const parentChildCount = dom.childElementCount || 0;
+          if (parentChildCount === 1) {
+            obj[dom.tagName] = textContent;
+          } else {
+            obj[`textContent`] = textContent;
+          }
         }
       }
     }
@@ -124,7 +142,6 @@ function domToJson(dom) {
     // Return the resulting object
     return obj;
   }
-
   // If the current node is not an element node, return null
   return null;
 }
@@ -141,7 +158,7 @@ export async function getWMTSCapabilities(url, queryParams, headerParams) {
       const parser = new DOMParser();
       const parsedXml = parser.parseFromString(capabilitiesXml, 'text/xml');
       console.log(domToJson(parsedXml.documentElement));
-      return domToJson(parsedXml);
+      return domToJson(parsedXml.documentElement);
     } else {
       throw new Error('Failed to retrieve WMTS capabilities');
     }

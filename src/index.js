@@ -38,8 +38,6 @@ function extractLayerProperties(selectedLayer) {
     tileUrlTemplate = selectedLayer.ResourceURL.attributes.template;
   } else {
     //create kvp url template
-    tileUrlTemplate =
-      'https://mapproxy-raster-dev-route-raster-dev.apps.j1lk3njp.eastus.aroapp.io/api/raster/v1/service?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJNYXBDb2xvbmllc0RldiIsImlhdCI6MTUxNjIzOTAyMiwiZCI6WyJyYXN0ZXIiLCJyYXN0ZXJXbXMiLCJyYXN0ZXJFeHBvcnQiLCJkZW0iLCJ2ZWN0b3IiLCIzZCJdfQ.GvTQ_yLjnioxxFrNgGQiuarhJxLpe8AhTTtrWE3LHoUED48CFKBEOfKqOyEWSDVZjx1jHkDvZAL1iyEvi5FHNys7UBRXCiJvVlG-muJZ6ycS9PGKauzL-eggXqTqGsXh4FBkqvHUEElXEnu7ARsMCm5eIC66U2i_eHFU3PLcOc67qJvS1IQjAI2oj9Pd5mGaI_HlDaf3B4PFOb0AHdY-r_MDGwck3asm1G_InVzsvCXt36vImyn1Z4HYaN4YiDfaMLBF0-GGrlLE84PObzGGtt66EIuQ4OneEZSzoQNusBt5-SFs0EQXsfsDc_RMRTz3DZseqkNIKiXEsEBBPjMr7w&LAYER=bluemarble-Orthophoto&FORMAT=image/png&CRS=EPSG:4326&TRANSPARENT=TRUEC&SERVICE=WMTS&VERSION=1.1.1&REQUEST=GetTile&STYLE&tilematrixset=newGrids&tilerow=3&tilecol=4&tilematrix=3';
   }
   const format = selectedLayer.Format.textContent;
   const tileMatrixSet = selectedLayer.TileMatrixSetLink.TileMatrixSet.textContent;

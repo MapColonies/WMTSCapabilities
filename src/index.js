@@ -1,13 +1,29 @@
+import { KVPTileUrl } from './tileUrlManager/KVPTileUrl';
+import { RestfulTileUrl } from './tileUrlManager/RestfulTileUrl';
 export function getLayerByCapabilities(capabilities, identifier, queryParams) {
   const token = queryParams.get('token');
   const allIdentifiers = capabilities.querySelectorAll('Identifier');
   const selectedIdentifier = Array.from(allIdentifiers).find((currentIdentifier) => currentIdentifier.textContent === identifier);
 
-  if (selectedIdentifier) {
-    const fittingLayer = selectedIdentifier.parentNode;
-    const { tileUrlTemplate, tileMatrixSet, title, style, format } = extractLayerProperties(fittingLayer);
+  if (chosenLayer) {
+    const { tileMatrixSet, title, style, format } = extractLayerProperties(chosenLayer);
 
-    const validUrl = replaceTileUrlPlaceholders(tileUrlTemplate, tileMatrixSet, token);
+    //kvp or rest
+    let tileUrlTemplate;
+    if (capabilities.OperationsMetadata) {
+      tileUrlTemplate = new KVPTileUrl(capabilities);
+    } else {
+      tileUrlTemplate = new RestfulTileUrl(capabilities);
+    }
+
+    tileUrlTemplate.insertQueryParams({
+      layer: title,
+      style: style,
+      tileMatrixSet: tileMatrixSet,
+      format: format,
+    });
+
+    const validUrl = replaceTileUrlPlaceholders(tileUrlTemplate, tileMatrixSet);
 
     const wmtsLayer = L.tileLayer(validUrl, {
       layers: title,
@@ -23,39 +39,107 @@ export function getLayerByCapabilities(capabilities, identifier, queryParams) {
 }
 
 function extractLayerProperties(selectedLayer) {
-  const title = selectedLayer.querySelector('Title').textContent;
-  const tileUrlTemplate = selectedLayer.querySelector('ResourceURL').attributes.template.textContent;
-  const style = selectedLayer.querySelector('Format').textContent;
-  const tileMatrixSet = selectedLayer.querySelector('TileMatrixSet').textContent;
-  const format = selectedLayer.querySelector('Style').children[0].textContent;
-  return { tileUrlTemplate, tileMatrixSet, title, style, format };
+  const title = selectedLayer.Title.textContent;
+  const format = selectedLayer.Format.textContent;
+  const tileMatrixSet = selectedLayer.TileMatrixSetLink.TileMatrixSet.textContent;
+  const style = selectedLayer.Style.Identifier.textContent;
+  return { tileMatrixSet, title, style, format };
 }
 
-function replaceTileUrlPlaceholders(url, tileMatrixSet, token) {
-  const replacedUrl = url
-    .replace('{TileMatrixSet}', tileMatrixSet)
-    .replace('{TileMatrix}', '{z}')
-    .replace('{TileCol}', '{x}')
-    .replace('{TileRow}', '{y}');
-
-  return token ? addToken(replacedUrl, token) : replacedUrl;
+function replaceTileUrlPlaceholders(url, tileMatrixSet) {
+  return url.replace('{TileMatrixSet}', tileMatrixSet).replace('{TileMatrix}', '{z}').replace('{TileCol}', '{x}').replace('{TileRow}', '{y}');
 }
 
 function getCapabilitiesUrl(url, queryParams) {
-  const token = queryParams.get('token');
-  let reqUrl;
-
-  if (String(url).includes('WMTSCapabilities.xml') || String(url).includes('REQUEST=GetCapabilities')) {
-    reqUrl = token ? addToken(url, token) : url;
+  if (url.includes('WMTSCapabilities.xml') || url.includes('REQUEST=GetCapabilities')) {
+    return concatParamsToUrl(url, queryParams);
   } else {
-    const version = '1.0.0';
-    reqUrl = token ? addToken(`${url}/wmts/${version}/WMTSCapabilities.xml`, token) : `${url}/wmts/${version}/WMTSCapabilities.xml`;
+    //by defalt, KVP capabilities url.
+    const reqUrl = url + `/service?Request=GetCapabilities&SERVICE=WMTS`;
+    return concatParamsToUrl(reqUrl, queryParams);
   }
-  return reqUrl;
 }
 
-function addToken(url, token) {
-  return String(url).includes('?') ? url + `&token=${token}` : `?token=${token}`;
+function concatParamsToUrl(url, queryParams) {
+  let paramSign = url.includes('?') ? '&' : '?';
+  let fixedUrl = url;
+  for (const [key, value] of Object.entries(queryParams)) {
+    fixedUrl += `${paramSign}${key}=${value}`;
+    paramSign = '&';
+  }
+  return fixedUrl;
+}
+
+function domToJson(dom) {
+  if (dom.nodeType === Node.TEXT_NODE) {
+    return dom.nodeValue;
+  }
+  if (dom.nodeType === Node.ELEMENT_NODE) {
+    const obj = {};
+
+    if (dom.attributes.length > 0) {
+      obj.attributes = {};
+
+      for (let i = 0, len = dom.attributes.length; i < len; ++i) {
+        const attr = dom.attributes[i];
+        const attrValue = attr.value.trim();
+        if (attrValue !== '') {
+          //remove preName of tag (':' can't be read as a propery)
+          const attributeName = attr.name.includes(':') ? attr.name.substring(attr.name.indexOf(':') + 1) : attr.name;
+          obj.attributes[attributeName] = attrValue;
+        }
+      }
+
+      if (Object.keys(obj.attributes).length === 0) {
+        obj.attributes = null;
+      }
+    }
+
+    let childCount = 0;
+    for (let child = dom.firstChild; child; child = child.nextSibling) {
+      if (child.nodeType === Node.ELEMENT_NODE) {
+        //remove preName of tag (':' can't be read as a propery)
+        const childTag = child.tagName.includes(':') ? child.tagName.substring(child.tagName.indexOf(':') + 1) : child.tagName;
+        if (!obj[childTag]) {
+          obj[childTag] = null;
+        }
+        const childObj = domToJson(child);
+        if (obj[childTag] === null) {
+          obj[childTag] = childObj;
+        } else {
+          if (!Array.isArray(obj[childTag])) {
+            obj[childTag] = [obj[childTag]];
+          }
+          obj[childTag].push(childObj);
+        }
+        childCount++;
+      } else if (child.nodeType === Node.TEXT_NODE) {
+        const textContent = child.nodeValue.trim();
+        if (textContent !== '') {
+          const parentChildCount = dom.childElementCount || 0;
+          if (parentChildCount === 1) {
+            obj[dom.tagName] = textContent;
+          } else {
+            obj[`textContent`] = textContent;
+          }
+        }
+      }
+    }
+
+    // If the root element has only one child element, unwrap it
+    const childTags = Object.keys(obj);
+    if (childTags.length === 1) {
+      const singleChildTag = childTags[0];
+      if (Array.isArray(obj[singleChildTag])) {
+        obj[singleChildTag] = obj[singleChildTag][0];
+      }
+    }
+
+    // Return the resulting object
+    return obj;
+  }
+  // If the current node is not an element node, return null
+  return null;
 }
 
 export async function getWMTSCapabilities(url, queryParams, headerParams) {

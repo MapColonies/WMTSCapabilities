@@ -1,5 +1,6 @@
-class TileUrl {
+export class TileUrl {
   tileUrl;
+  _allQueryParams;
 
   constructor() {
     if (this.constructor == TileUrl) {
@@ -7,11 +8,7 @@ class TileUrl {
     }
   }
 
-  addParameters() {
-    throw new Error("Method 'addParameters()' must be implemented.");
-  }
-
-  getTileUrl() {
-    throw new Error("Method 'getTileUrl()' must be implemented.");
+  insertQueryParams(newQueryParams) {
+    throw new Error("Method 'setQueryParams' must be implemented.");
   }
 }

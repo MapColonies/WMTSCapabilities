@@ -1,12 +1,29 @@
+import { KVPTileUrl } from './tileUrlManager/KVPTileUrl';
+import { RestfulTileUrl } from './tileUrlManager/RestfulTileUrl';
 export function getLayerByCapabilities(capabilities, identifier, queryParams) {
   const token = queryParams.token;
   const allLayers = capabilities.Contents.Layer;
   const chosenLayer = Array.from(allLayers).find((layer) => layer.Identifier.textContent === identifier);
 
   if (chosenLayer) {
-    const { tileUrlTemplate, tileMatrixSet, title, style, format } = extractLayerProperties(chosenLayer);
+    const { tileMatrixSet, title, style, format } = extractLayerProperties(chosenLayer);
 
-    const validUrl = replaceTileUrlPlaceholders(tileUrlTemplate, tileMatrixSet, token);
+    //kvp or rest
+    let tileUrlTemplate;
+    if (capabilities.OperationsMetadata) {
+      tileUrlTemplate = new KVPTileUrl(capabilities);
+    } else {
+      tileUrlTemplate = new RestfulTileUrl(capabilities);
+    }
+
+    tileUrlTemplate.insertQueryParams({
+      layer: title,
+      style: style,
+      tileMatrixSet: tileMatrixSet,
+      format: format,
+    });
+
+    const validUrl = replaceTileUrlPlaceholders(tileUrlTemplate, tileMatrixSet);
 
     const wmtsLayer = L.tileLayer(validUrl, {
       layers: title,
@@ -21,55 +38,36 @@ export function getLayerByCapabilities(capabilities, identifier, queryParams) {
   }
 }
 
-function extractTileUrlTemplate(parsedCapabilities, selectedLayer) {
-  let tileUrlTemplate;
-
-  if (parsedCapabilities.OperationsMetadata) {
-    tileUrlTemplate = parsedCapabilities.OperationsMetadata.Get.attributes.href;
-  } else {
-    selectedLayer.ResourceURL.attributes.template;
-  }
-}
-
 function extractLayerProperties(selectedLayer) {
   const title = selectedLayer.Title.textContent;
-  let tileUrlTemplate;
-  if (selectedLayer.ResourceURL.attributes.template) {
-    tileUrlTemplate = selectedLayer.ResourceURL.attributes.template;
-  } else {
-    //create kvp url template
-  }
   const format = selectedLayer.Format.textContent;
   const tileMatrixSet = selectedLayer.TileMatrixSetLink.TileMatrixSet.textContent;
   const style = selectedLayer.Style.Identifier.textContent;
-  return { tileUrlTemplate, tileMatrixSet, title, style, format };
+  return { tileMatrixSet, title, style, format };
 }
 
-function replaceTileUrlPlaceholders(url, tileMatrixSet, token) {
-  const replacedUrl = url
-    .replace('{TileMatrixSet}', tileMatrixSet)
-    .replace('{TileMatrix}', '{z}')
-    .replace('{TileCol}', '{x}')
-    .replace('{TileRow}', '{y}');
-
-  return token ? addToken(replacedUrl, token) : replacedUrl;
+function replaceTileUrlPlaceholders(url, tileMatrixSet) {
+  return url.replace('{TileMatrixSet}', tileMatrixSet).replace('{TileMatrix}', '{z}').replace('{TileCol}', '{x}').replace('{TileRow}', '{y}');
 }
 
 function getCapabilitiesUrl(url, queryParams) {
-  const token = queryParams.token;
-  let reqUrl;
-
-  if (String(url).includes('WMTSCapabilities.xml') || String(url).includes('REQUEST=GetCapabilities')) {
-    reqUrl = token ? addToken(url, token) : url;
+  if (url.includes('WMTSCapabilities.xml') || url.includes('REQUEST=GetCapabilities')) {
+    return concatParamsToUrl(url, queryParams);
   } else {
-    const version = '1.0.0';
-    reqUrl = token ? addToken(`${url}/wmts/${version}/WMTSCapabilities.xml`, token) : `${url}/wmts/${version}/WMTSCapabilities.xml`;
+    //by defalt, KVP capabilities url.
+    const reqUrl = url + `/service?Request=GetCapabilities&SERVICE=WMTS`;
+    return concatParamsToUrl(reqUrl, queryParams);
   }
-  return reqUrl;
 }
 
-function addToken(url, token) {
-  return String(url).includes('?') ? url + `&token=${token}` : url + `?token=${token}`;
+function concatParamsToUrl(url, queryParams) {
+  let paramSign = url.includes('?') ? '&' : '?';
+  let fixedUrl = url;
+  for (const [key, value] of Object.entries(queryParams)) {
+    fixedUrl += `${paramSign}${key}=${value}`;
+    paramSign = '&';
+  }
+  return fixedUrl;
 }
 
 function domToJson(dom) {

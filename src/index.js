@@ -62,12 +62,17 @@ function replaceTileUrlPlaceholders(url, tileMatrixSet) {
 }
 
 function getCapabilitiesUrl(url, queryParams) {
-  if (url.includes('WMTSCapabilities.xml') || url.includes('REQUEST=GetCapabilities')) {
+  if (url.includes('WMTSCapabilities.xml') || url.includes('REQUEST=GetCapabilities&SERVICE=WMTS')) {
     return concatParamsToUrl(url, queryParams);
   } else {
     //by defalt, KVP capabilities url.
-    const reqUrl = url + `/service?Request=GetCapabilities&SERVICE=WMTS`;
-    return concatParamsToUrl(reqUrl, queryParams);
+    if (url.includes('REQUEST=GetCapabilities')) {
+      const reqUrl = url + `&SERVICE=WMTS`;
+      return concatParamsToUrl(reqUrl, queryParams);
+    } else {
+      const reqUrl = url + `/service?Request=GetCapabilities&SERVICE=WMTS`;
+      return concatParamsToUrl(reqUrl, queryParams);
+    }
   }
 }
 

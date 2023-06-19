@@ -7,6 +7,7 @@ export class KVPTileUrl extends TileUrl {
     this._allQueryParams = {
       service: 'WMTS',
       format: 'image/png',
+      version: '1.0.0',
       request: 'GetTile',
       style: '',
       tileMatrixSet: '{TileMatrixSet}',
@@ -25,26 +26,26 @@ export class KVPTileUrl extends TileUrl {
 
   #addParametersToUrl() {
     for (const [key, value] of Object.entries(this._allQueryParams)) {
-      this.tileUrl += `&${key}`;
+      this.tileUrl += `&${key}=${value}`;
     }
     if (!this.#hasRequiredParams()) {
       throw new Error(
-        "Required query params were not set. params must include 'layer' and url must include 'layer', 'service', 'format', 'version', 'request', 'style' "
+        "Required query params were not set. params must include 'layer' and url must include 'layer', 'version', 'service', 'format', 'version', 'request', 'style' "
       );
     }
   }
 
   #hasRequiredParams() {
     return (
-      this.tileUrl.includes('LAYER') &&
-      this.tileUrl.includes('FORMAT') &&
-      this.tileUrl.includes('VERSION') &&
-      this.tileUrl.includes('REQUEST') &&
-      this.tileUrl.includes('STYLE') &&
-      this.tileUrl.includes('tilematrixset') &&
-      this.tileUrl.includes('tilerow') &&
-      this.tileUrl.includes('tilecol') &&
-      this.tileUrl.includes('tilematrix')
+      this.tileUrl.includes('layer') &&
+      this.tileUrl.includes('format') &&
+      this.tileUrl.includes('version') &&
+      this.tileUrl.includes('request') &&
+      this.tileUrl.includes('style') &&
+      this.tileUrl.includes('tileMatrixSet') &&
+      this.tileUrl.includes('tileRow') &&
+      this.tileUrl.includes('tileCol') &&
+      this.tileUrl.includes('tileMatrix')
     );
   }
 }

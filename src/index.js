@@ -1,29 +1,33 @@
 import { KVPTileUrl } from './tileUrlManager/KVPTileUrl';
 import { RestfulTileUrl } from './tileUrlManager/RestfulTileUrl';
 export function getLayerByCapabilities(capabilities, identifier, queryParams) {
-  const token = queryParams.get('token');
-  const allIdentifiers = capabilities.querySelectorAll('Identifier');
-  const selectedIdentifier = Array.from(allIdentifiers).find((currentIdentifier) => currentIdentifier.textContent === identifier);
+  const allLayers = capabilities.Contents.Layer;
+  const chosenLayer = Array.from(allLayers).find((layer) => layer.Identifier.textContent === identifier);
 
   if (chosenLayer) {
     const { tileMatrixSet, title, style, format } = extractLayerProperties(chosenLayer);
 
     //kvp or rest
-    let tileUrlTemplate;
+    let tileUrlObj;
     if (capabilities.OperationsMetadata) {
-      tileUrlTemplate = new KVPTileUrl(capabilities);
+      tileUrlObj = new KVPTileUrl(capabilities);
     } else {
-      tileUrlTemplate = new RestfulTileUrl(capabilities);
+      tileUrlObj = new RestfulTileUrl(capabilities);
     }
 
-    tileUrlTemplate.insertQueryParams({
-      layer: title,
-      style: style,
-      tileMatrixSet: tileMatrixSet,
-      format: format,
-    });
+    const allQueryParams = Object.assign(
+      {
+        layer: title,
+        style: style,
+        tileMatrixSet: tileMatrixSet,
+        format: format,
+      },
+      queryParams
+    );
 
-    const validUrl = replaceTileUrlPlaceholders(tileUrlTemplate, tileMatrixSet);
+    tileUrlObj.insertQueryParams(allQueryParams);
+
+    const validUrl = replaceTileUrlPlaceholders(tileUrlObj.tileUrl, tileMatrixSet);
 
     const wmtsLayer = L.tileLayer(validUrl, {
       layers: title,
@@ -47,7 +51,7 @@ function extractLayerProperties(selectedLayer) {
 }
 
 function replaceTileUrlPlaceholders(url, tileMatrixSet) {
-  return url.replace('{TileMatrixSet}', tileMatrixSet).replace('{TileMatrix}', '{z}').replace('{TileCol}', '{x}').replace('{TileRow}', '{y}');
+  return String(url).replace('{TileMatrixSet}', tileMatrixSet).replace('{TileMatrix}', '{z}').replace('{TileCol}', '{x}').replace('{TileRow}', '{y}');
 }
 
 function getCapabilitiesUrl(url, queryParams) {

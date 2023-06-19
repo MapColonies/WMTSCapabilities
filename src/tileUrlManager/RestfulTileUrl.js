@@ -4,16 +4,17 @@ export class RestfulTileUrl extends TileUrl {
   constructor(parsedCapabilities) {
     super();
     const fullUrl = parsedCapabilities.ServiceMetadataURL.attributes.href;
-    this.tileUrl = fullUrl.substring(0, fullUrl.indexOf('1.0.0/WMTSCapabilities.xml'));
+    this.tileUrl = fullUrl.substring(0, fullUrl.indexOf('/wmts/1.0.0/WMTSCapabilities.xml'));
 
     //order is important, this is why all params are decleared as base.
     this._allQueryParams = {
+      service: 'wmts',
       layer: '',
       tileMatrixSet: '{TileMatrixSet}',
       tileMatrix: '{TileMatrix}',
       tileCol: '{TileCol}',
       tileRow: '{TileRow}',
-      format: '.png',
+      format: 'png',
     };
   }
 
@@ -24,16 +25,21 @@ export class RestfulTileUrl extends TileUrl {
     this.#addParametersToUrl();
   }
 
+  #isTemplateParam(key) {
+    return key === 'service' || key === 'layer' || key === 'tileMatrixSet' || key === 'tileMatrix' || key === 'tileCol' || key === 'tileRow';
+  }
   #addParametersToUrl() {
     if (this._allQueryParams['layer'] === '') {
       throw new Error("'layer' was not defined at query params");
     }
     for (const [key, value] of Object.entries(this._allQueryParams)) {
-      //format is the last param to end url with a dot.
-      if (key != 'format') {
+      // as base rest url has to be {Service}/{Layer}/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.{Format} and all those default params are set.
+      if (this.#isTemplateParam(key)) {
         this.tileUrl += `/${value}`;
-      } else {
+      } else if (key === 'format') {
         this.tileUrl += `.${value}`;
+      } else {
+        this.tileUrl += `?${key}=${value}`;
       }
     }
   }

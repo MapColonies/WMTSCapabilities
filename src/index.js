@@ -9,21 +9,28 @@ export function getLayerByCapabilities(capabilities, identifier, queryParams) {
 
     //kvp or rest
     let tileUrlObj;
+    let allQueryParams;
     if (capabilities.OperationsMetadata) {
       tileUrlObj = new KVPTileUrl(capabilities);
+      allQueryParams = Object.assign(
+        {
+          layer: title,
+          style: style,
+          tileMatrixSet: tileMatrixSet,
+          format: format,
+        },
+        queryParams
+      );
     } else {
       tileUrlObj = new RestfulTileUrl(capabilities);
+      allQueryParams = Object.assign(
+        {
+          layer: title,
+          tileMatrixSet: tileMatrixSet,
+        },
+        queryParams
+      );
     }
-
-    const allQueryParams = Object.assign(
-      {
-        layer: title,
-        style: style,
-        tileMatrixSet: tileMatrixSet,
-        format: format,
-      },
-      queryParams
-    );
 
     tileUrlObj.insertQueryParams(allQueryParams);
 

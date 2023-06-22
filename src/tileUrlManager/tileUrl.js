@@ -1,4 +1,5 @@
-export class TileUrl {
+module.exports = TileUrl;
+class TileUrl {
   tileUrl;
   _allQueryParams;
 

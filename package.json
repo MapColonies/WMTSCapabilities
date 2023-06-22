@@ -1,8 +1,8 @@
 {
   "name": "@map-colonies/wmts-layer-leaflet",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "This is an NPM package that allows creating leaflet WMTS layers by capabilities",
-  "main": "./src/index.js",
+  "main": "./src/main.js",
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
@@ -16,7 +16,7 @@
     "test": "npm run test:unit && npm run test:integration",
     "prebuild": "npm run clean",
     "build": "",
-    "start": "node ./index.js",
+    "start": "node ./src/main.js",
     "clean": "",
     "prepack": "npm run build"
   },
@@ -35,9 +35,6 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "files": [
-    "dist/**/*"
-  ],
   "homepage": "https://github.com/MapColonies/wmts-layer-leaflet#readme",
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",

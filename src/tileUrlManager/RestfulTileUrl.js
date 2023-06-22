@@ -1,6 +1,7 @@
-import { TileUrl } from './tileUrl';
+const TileUrl = require('./tileUrl');
+module.exports = RestfulTileUrl;
 
-export class RestfulTileUrl extends TileUrl {
+class RestfulTileUrl extends TileUrl {
   constructor(parsedCapabilities) {
     super();
     const fullUrl = parsedCapabilities.ServiceMetadataURL.attributes.href;

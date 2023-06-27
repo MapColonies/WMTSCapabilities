@@ -2,7 +2,7 @@
   "name": "@map-colonies/wmts-layer-leaflet",
   "version": "1.0.0",
   "description": "This is an NPM package that allows creating leaflet WMTS layers by capabilities",
-  "main": "./src/main.js",
+  "main": "./src/index.js",
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
@@ -16,7 +16,7 @@
     "test": "npm run test:unit && npm run test:integration",
     "prebuild": "npm run clean",
     "build": "",
-    "start": "node ./src/main.js",
+    "start": "node ./src/index.js",
     "clean": "",
     "prepack": "npm run build"
   },

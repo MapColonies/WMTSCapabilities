@@ -1,7 +1,6 @@
-const TileUrl = require('./tileUrl');
-module.exports = RestfulTileUrl;
+const { TileUrl } = require('./TileUrl');
 
-class RestfulTileUrl extends TileUrl {
+export class RestfulTileUrl extends TileUrl {
   constructor(parsedCapabilities) {
     super();
     const fullUrl = parsedCapabilities.ServiceMetadataURL.attributes.href;
@@ -21,7 +20,7 @@ class RestfulTileUrl extends TileUrl {
 
   insertQueryParams(newQueryParams) {
     for (const [key, value] of Object.entries(newQueryParams)) {
-      this._allQueryParams[`${key}`] = value;
+      this._allQueryParams[key] = value;
     }
     this.#addParametersToUrl();
   }

@@ -1,6 +1,5 @@
-module.exports = KVPTileUrl;
-const TileUrl = require('./tileUrl');
-class KVPTileUrl extends TileUrl {
+const { TileUrl } = require('./TileUrl');
+export class KVPTileUrl extends TileUrl {
   constructor(parsedCapabilities) {
     super();
     this.tileUrl = parsedCapabilities.OperationsMetadata.Operation.DCP.HTTP.Get.attributes.href;

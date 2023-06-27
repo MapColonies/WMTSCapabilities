@@ -1,8 +1,7 @@
+const { KVPTileUrl } = require('./tileUrlManager/KVPTileUrl');
+const { RestfulTileUrl } = require('./tileUrlManager/RestfulTileUrl');
+const { getWMTSCapabilities } = require('@map-colonies/wmts-capabilities-parser');
 module.exports = { getLayer, getLayerByCapabilities };
-
-const KVPTileUrl = require('./tileUrlManager/KVPTileUrl');
-const RestfulTileUrl = require('./tileUrlManager/RestfulTileUrl');
-const getWMTSCapabilities = require('@map-colonies/wmts-capabilities-parser');
 
 function getLayerByCapabilities(capabilities, identifier, queryParams) {
   const allLayers = capabilities.Contents.Layer;

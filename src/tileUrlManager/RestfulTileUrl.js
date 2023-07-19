@@ -1,4 +1,4 @@
-const { TileUrl } = require('./TileUrl');
+import { TileUrl } from './TileUrl.js';
 
 export class RestfulTileUrl extends TileUrl {
   constructor(parsedCapabilities) {

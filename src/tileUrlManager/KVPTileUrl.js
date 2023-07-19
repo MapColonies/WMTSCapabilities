@@ -1,4 +1,5 @@
-const { TileUrl } = require('./TileUrl');
+import { TileUrl } from './TileUrl.js';
+
 export class KVPTileUrl extends TileUrl {
   constructor(parsedCapabilities) {
     super();

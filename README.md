@@ -5,7 +5,7 @@ Intro
 -------------
 
 leaflet-based package will allow clients to create WMTS layers.
-The WMTSLayer-leaflet package will use WMTSCapabilitiesParser to optimize retrieving and supplying the wmts layers.
+The WMTSLayer-leaflet package will use Map Colonies's wmts-capabilities-parser to optimize retrieving and supplying the wmts layers.
 
 ----
 Product

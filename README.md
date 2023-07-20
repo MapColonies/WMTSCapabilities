@@ -55,8 +55,10 @@ When request capabilites failed - `Error(Error retrieving WMTS capabilities: ${o
 
 #### Example
 
-`const map = L.map("map").setView([0, 0], 2);
-const wmtsLayer = await getLayer("https://mapproxyurl/v1", 'bluemarble-Orthophoto', {"token": authToken});
-wmtsLayer.addTo(map)`
+`const map = L.map("map").setView([0, 0], 2);`
+
+`const wmtsLayer = await getLayer("https://mapproxyurl/v1", 'bluemarble-Orthophoto', {"token": authToken});`
+
+`wmtsLayer.addTo(map)`
 
 ### End

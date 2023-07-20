@@ -28,7 +28,9 @@ Simple to use
 How To use
 -------------
 `npm i wmts-layer-leaflet`
+
 `import L from "leaflet";`
+
 `import { getLayer, getLayerByCapabilities } from "@map-colonies/wmts-layer-leaflet";`
 
 ----

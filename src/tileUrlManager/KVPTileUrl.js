@@ -21,31 +21,45 @@ export class KVPTileUrl extends TileUrl {
     for (const [key, value] of Object.entries(newQueryParams)) {
       this._allQueryParams[`${key}`] = value;
     }
-    this.#addParametersToUrl();
+    this.#setParametersToUrl();
   }
 
-  #addParametersToUrl() {
+  #setParametersToUrl() {
+    //convert to URL type
+    const baseUrl = new URL(this.tileUrl);
+
+    //define as URLSearchParams
+    const allQueryParams = new URLSearchParams(baseUrl.search);
+
+    //append URLSearchParams together
     for (const [key, value] of Object.entries(this._allQueryParams)) {
-      this.tileUrl += `&${key}=${value}`;
+      allQueryParams.append(key, value);
     }
-    if (!this.#hasRequiredParams()) {
+
+    //append URLSearchParams to URL and convert it backt to string
+    const queryParamsStr = allQueryParams.toString();
+
+    if (!this.#hasRequiredParams(queryParamsStr)) {
       throw new Error(
         "Required query params were not set. params must include 'layer' and url must include 'layer', 'version', 'service', 'format', 'version', 'request', 'style' "
       );
+    } else {
+      //take url before first query param or url
+      this.tileUrl = this.tileUrl.split('?')[0] + '?' + queryParamsStr;
     }
   }
 
-  #hasRequiredParams() {
+  #hasRequiredParams(url) {
     return (
-      this.tileUrl.includes('layer') &&
-      this.tileUrl.includes('format') &&
-      this.tileUrl.includes('version') &&
-      this.tileUrl.includes('request') &&
-      this.tileUrl.includes('style') &&
-      this.tileUrl.includes('tileMatrixSet') &&
-      this.tileUrl.includes('tileRow') &&
-      this.tileUrl.includes('tileCol') &&
-      this.tileUrl.includes('tileMatrix')
+      url.includes('layer') &&
+      url.includes('format') &&
+      url.includes('version') &&
+      url.includes('request') &&
+      url.includes('style') &&
+      url.includes('tileMatrixSet') &&
+      url.includes('tileRow') &&
+      url.includes('tileCol') &&
+      url.includes('tileMatrix')
     );
   }
 }

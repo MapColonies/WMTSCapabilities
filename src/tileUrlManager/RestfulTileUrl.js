@@ -22,19 +22,19 @@ export class RestfulTileUrl extends TileUrl {
     for (const [key, value] of Object.entries(newQueryParams)) {
       this._allQueryParams[key] = value;
     }
-    this.#addParametersToUrl();
+    this._addParametersToUrl();
   }
 
-  #isTemplateParam(key) {
+  _isTemplateParam(key) {
     return key === 'service' || key === 'layer' || key === 'tileMatrixSet' || key === 'tileMatrix' || key === 'tileCol' || key === 'tileRow';
   }
-  #addParametersToUrl() {
+  _addParametersToUrl() {
     if (this._allQueryParams['layer'] === '') {
       throw new Error("'layer' was not defined at query params");
     }
     for (const [key, value] of Object.entries(this._allQueryParams)) {
       // as base rest url has to be {Service}/{Layer}/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.{Format} and all those default params are set.
-      if (this.#isTemplateParam(key)) {
+      if (this._isTemplateParam(key)) {
         this.tileUrl += `/${value}`;
       } else if (key === 'format') {
         this.tileUrl += `.${value}`;

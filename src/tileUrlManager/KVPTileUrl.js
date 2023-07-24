@@ -21,10 +21,10 @@ export class KVPTileUrl extends TileUrl {
     for (const [key, value] of Object.entries(newQueryParams)) {
       this._allQueryParams[`${key}`] = value;
     }
-    this.#setParametersToUrl();
+    this._setParametersToUrl();
   }
 
-  #setParametersToUrl() {
+  _setParametersToUrl() {
     //convert to URL type
     const baseUrl = new URL(this.tileUrl);
 
@@ -39,7 +39,7 @@ export class KVPTileUrl extends TileUrl {
     //append URLSearchParams to URL and convert it backt to string
     const queryParamsStr = allQueryParams.toString();
 
-    if (!this.#hasRequiredParams(queryParamsStr)) {
+    if (!this._hasRequiredParams(queryParamsStr)) {
       throw new Error(
         "Required query params were not set. params must include 'layer' and url must include 'layer', 'version', 'service', 'format', 'version', 'request', 'style' "
       );
@@ -49,7 +49,7 @@ export class KVPTileUrl extends TileUrl {
     }
   }
 
-  #hasRequiredParams(url) {
+  _hasRequiredParams(url) {
     return (
       url.includes('layer') &&
       url.includes('format') &&

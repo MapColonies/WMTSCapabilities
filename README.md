@@ -27,7 +27,7 @@ Simple to use
 ----
 How To use
 -------------
-`npm i wmts-layer-leaflet`
+`npm i wmts-layer-leaflet` or add the following: ` <script> src="https://unpkg.com/wmts-layer-leaflet@1.0.0/src/index.js"</script>`
 
 `import L from "leaflet";`
 

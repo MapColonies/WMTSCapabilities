@@ -8,6 +8,13 @@ leaflet-based package will allow clients to create WMTS layers.
 The WMTSLayer-leaflet package will use Map Colonies's wmts-capabilities-parser to optimize retrieving and supplying the wmts layers.
 
 ----
+Compatibility
+-------------
+
+supported on Chrome version 55+ 
+supported on Firefox 52+
+
+----
 Product
 -------------
 

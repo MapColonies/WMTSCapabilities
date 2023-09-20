@@ -1,6 +1,6 @@
 import { KVPTileUrl } from './KVPTileUrl.js';
 import { RestfulTileUrl } from './RestfulTileUrl.js';
-import { getWMTSCapabilities } from '@map-colonies/wmts-capabilities-parser/src/capabilitiesManager.js';
+import { getWMTSCapabilities } from '@map-colonies/wmts-capabilities-parser';
 
 function extractLayerProperties(selectedLayer) {
   const title = selectedLayer.Title.textContent;
@@ -64,5 +64,6 @@ export function getLayerByCapabilities(capabilities, identifier, queryParams) {
 }
 
 export async function getLayer(url, identifier, queryParams, headersParams) {
-  return getLayerByCapabilities(await getWMTSCapabilities(url, queryParams, headersParams), identifier, queryParams);
+  const capabilities = await getWMTSCapabilities(url, queryParams, headersParams);
+  return getLayerByCapabilities(capabilities, identifier, queryParams);
 }

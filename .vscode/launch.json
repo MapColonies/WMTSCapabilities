@@ -14,7 +14,7 @@
       "internalConsoleOptions": "openOnSessionStart",
       "cwd": "${workspaceFolder}/src",
       "skipFiles": ["<node_internals>/**"],
-      "outFiles": ["${workspaceFolder}/src/**/*.js", "!**/node_modules/**"],
+      "outFiles": ["${workspaceFolder}/src/**/*.js"],
       "program": "${workspaceFolder}/src/index.js"
     }
   ]

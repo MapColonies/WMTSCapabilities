@@ -9,4 +9,4 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-* replaced prepublish script with prepack ([#5](https://github.com/MapColonies/ts-npm-package-boilerplate/issues/5)) ([196259f](https://github.com/MapColonies/ts-npm-package-boilerplate/commit/196259f77cca41c45a9723c04da0d83b7555145b))
+* replaced prepublish script with prepack ([#5](https://github.com/MapColonies/WMTSLayer-leaflet/issues/5)) ([196259f](https://github.com/MapColonies/WMTSLayer-leaflet/commit/196259f77cca41c45a9723c04da0d83b7555145b))

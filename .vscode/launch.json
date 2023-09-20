@@ -12,10 +12,10 @@
       "sourceMaps": true,
       "smartStep": true,
       "internalConsoleOptions": "openOnSessionStart",
-      "cwd": "${workspaceFolder}/dist",
+      "cwd": "${workspaceFolder}/src",
       "skipFiles": ["<node_internals>/**"],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js", "!**/node_modules/**"],
-      "program": "${workspaceFolder}/src/index.ts"
+      "outFiles": ["${workspaceFolder}/src/**/*.js"],
+      "program": "${workspaceFolder}/src/index.js"
     }
   ]
 }
